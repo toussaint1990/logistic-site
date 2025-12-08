@@ -111,13 +111,6 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [showHauloverDetails, setShowHauloverDetails] = useState(false);
 
-  const [contact, setContact] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: "",
-  });
-
   const apiKey = process.env.REACT_APP_ORS_API_KEY;
 
   const estimate = useQuoteEstimate({
@@ -241,15 +234,6 @@ export default function App() {
     setShowHauloverDetails(true);
   };
 
-  const handleContactSubmit = (e) => {
-    e.preventDefault();
-    const subject = encodeURIComponent("New load / dispatch inquiry");
-    const body = encodeURIComponent(
-      `Name: ${contact.name}\nCompany: ${contact.company}\nEmail: ${contact.email}\n\nMessage:\n${contact.message}`
-    );
-    window.location.href = `mailto:t.s.express.logistic@gmail.com?subject=${subject}&body=${body}`;
-  };
-
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
     window.alert(
@@ -328,52 +312,29 @@ export default function App() {
           animation: blinkSign 1.1s infinite;
         }
 
-        @keyframes flagWave {
-          0% { transform: perspective(600px) rotateY(0deg) translateY(0); }
-          50% { transform: perspective(600px) rotateY(-12deg) translateY(-1px); }
-          100% { transform: perspective(600px) rotateY(0deg) translateY(0); }
+        /* Waving effect for your actual flag image */
+        @keyframes flagWaveImg {
+          0% {
+            transform: perspective(900px) rotateY(0deg) skewY(0deg) translateY(0) scale(1);
+          }
+          50% {
+            transform: perspective(900px) rotateY(-14deg) skewY(-4deg) translateY(-2px) scale(1.03);
+          }
+          100% {
+            transform: perspective(900px) rotateY(0deg) skewY(0deg) translateY(0) scale(1);
+          }
         }
 
-        /* Modern pill-style waving US flag */
-        .flag-wave {
-          position: relative;
-          overflow: hidden;
-          border-radius: 999px;
-          background-image: repeating-linear-gradient(
-            to bottom,
-            #b91c1c 0,
-            #b91c1c 12%,
-            #ffffff 12%,
-            #ffffff 24%
-          );
-          background-size: 100% 200%;
+        .flag-img {
+          display: block;
+          border-radius: 10px;
           box-shadow:
-            0 18px 40px rgba(15,23,42,0.45),
-            0 0 0 1px rgba(15,23,42,0.55);
-          animation: flagWave 2s ease-in-out infinite;
+            0 16px 35px rgba(15,23,42,0.55),
+            0 0 0 1px rgba(15,23,42,0.6);
+          animation: flagWaveImg 1.5s ease-in-out infinite alternate;
           transform-origin: left center;
-        }
-        .flag-wave::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 40%;
-          height: 52%;
-          border-top-left-radius: 999px;
-          border-bottom-left-radius: 999px;
-          background-color: #111827;
-          background-image: radial-gradient(#f9fafb 1px, transparent 1px);
-          background-size: 4px 4px;
-        }
-        .flag-wave::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: 999px;
-          background: radial-gradient(circle at top left, rgba(255,255,255,0.5), transparent 55%);
-          mix-blend-mode: screen;
-          pointer-events: none;
+          background-color: white;
+          will-change: transform;
         }
 
         .hero-zoom {
@@ -383,7 +344,7 @@ export default function App() {
           z-index: 1;
         }
         .hero-zoom:hover {
-          transform: scale(1.15); /* slightly smaller zoom */
+          transform: scale(1.15);
           box-shadow: 0 26px 70px rgba(15,23,42,0.55);
           z-index: 20;
         }
@@ -476,9 +437,13 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Bigger horizontal American flag */}
+              {/* Waving American flag in intro */}
               <div className="mt-4 flex justify-center">
-                <div className="flag-wave h-20 w-48" />
+                <img
+                  src={process.env.PUBLIC_URL + "/flag.png"}
+                  alt="American flag"
+                  className="flag-img h-16 w-auto"
+                />
               </div>
 
               <p className="text-xs text-neutral-400 tracking-wide">
@@ -508,9 +473,13 @@ export default function App() {
               </div>
             </div>
 
-            {/* Middle: stylish waving flag in navbar (desktop only) */}
+            {/* Middle: flag (navbar) */}
             <div className="hidden flex-1 justify-center md:flex">
-              <div className="flag-wave h-7 w-16" />
+              <img
+                src={process.env.PUBLIC_URL + "/flag.png"}
+                alt="American flag"
+                className="flag-img h-8 w-auto"
+              />
             </div>
 
             {/* Right: nav links */}
@@ -1310,53 +1279,55 @@ export default function App() {
             </div>
           </Section>
 
-          {/* CONTACT – ONLY FORM */}
+          {/* CONTACT – direct email via FormSubmit */}
           <Section id="contact" title="Contact Dispatch">
             <form
-              onSubmit={handleContactSubmit}
+              action="https://formsubmit.co/t.s.express.logistic@gmail.com"
+              method="POST"
               className="mx-auto max-w-3xl space-y-4 rounded-3xl border border-white/70 bg-white/95 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.12)]"
             >
+              {/* FormSubmit settings */}
+              <input type="hidden" name="_captcha" value="false" />
+              <input
+                type="hidden"
+                name="_subject"
+                value="New load / dispatch inquiry from website"
+              />
+              <input type="hidden" name="_template" value="table" />
+
               <h3 className="text-lg font-semibold text-slate-900">
                 Send load details
               </h3>
               <p className="text-sm text-neutral-600">
-                Share your lane, pickup window, and any special handling. Our
-                dispatch team will reach back out as soon as possible.
+                Share your lane, pickup window, and any special handling. Your
+                message will be emailed directly to dispatch at{" "}
+                <span className="font-medium">
+                  t.s.express.logistic@gmail.com
+                </span>
+                .
               </p>
               <div className="grid gap-3 md:grid-cols-2">
                 <Input
+                  name="name"
                   placeholder="Your name"
-                  value={contact.name}
-                  onChange={(e) =>
-                    setContact((c) => ({ ...c, name: e.target.value }))
-                  }
                   required
                 />
                 <Input
+                  name="email"
                   type="email"
                   placeholder="Email"
-                  value={contact.email}
-                  onChange={(e) =>
-                    setContact((c) => ({ ...c, email: e.target.value }))
-                  }
                   required
                 />
               </div>
               <Input
+                name="company"
                 placeholder="Company (optional)"
-                value={contact.company}
-                onChange={(e) =>
-                  setContact((c) => ({ ...c, company: e.target.value }))
-                }
               />
               <textarea
+                name="message"
                 rows={4}
                 className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-200"
                 placeholder="Example: Sprinter load from Miami, FL to Atlanta, GA. Pickup today before 3pm, 2 pallets, 1,200 lbs, inside delivery."
-                value={contact.message}
-                onChange={(e) =>
-                  setContact((c) => ({ ...c, message: e.target.value }))
-                }
                 required
               />
               <button
@@ -1366,8 +1337,8 @@ export default function App() {
                 Submit to Dispatch
               </button>
               <p className="text-[11px] text-neutral-500">
-                Your details will open in your email app so you can send them
-                directly to dispatch.
+                After you click submit, you’ll see a confirmation screen and
+                your details will be emailed straight to dispatch.
               </p>
             </form>
           </Section>
